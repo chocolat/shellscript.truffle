@@ -1,0 +1,9 @@
+(name [elif …])
+
+(trigger
+    (tab elif))
+
+(only-in source.shell)
+
+(snippet [elif %{2="[[ %{1="condition"} ]]"}; then
+	%{0="#statements"}])

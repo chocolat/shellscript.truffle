@@ -1,0 +1,10 @@
+(name [until … done])
+
+(trigger
+    (tab until))
+
+(only-in source.shell)
+
+(snippet [until %{2="[[ %{1="condition"} ]]"}; do
+	%{0="#statements"}
+done])

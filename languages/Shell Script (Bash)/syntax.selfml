@@ -1,0 +1,565 @@
+(root source.shell
+    (include @comment)
+    (include @pipeline)
+    (include @list)
+    (include @compound-command)
+    (include @loop)
+    (include @function-definition)
+    (include @string)
+    (include @variable)
+    (include @interpolation)
+    (include @heredoc)
+    (include @herestring)
+    (include @redirection)
+    (include @pathname)
+    (include @keyword)
+    (include @support))
+
+(collection keyword
+    (zone keyword.control.shell
+        (match
+            (regex [\b(?:if|then|else|elif|fi|for|in|do|done|select|case|continue|esac|while|until|return)\b])))
+    (zone storage.modifier.shell
+        (match
+            (regex [(?<![-/])\b(?:export|declare|typeset|local|readonly)\b]))))
+
+(collection function-definition
+    (zone meta.function.shell
+        (start
+            (regex [\b(function)\s+([^\s\\]+)(?:\s*(\(\)))?]
+                (3 punctuation.definition.arguments.shell)
+                (1 storage.type.function.shell)
+                (2 entity.name.function.shell)))
+        (end
+            (regex ;|&|$
+                (0 punctuation.definition.function.shell)))
+        (subzones
+            (include $self)))
+    (zone meta.function.shell
+        (start
+            (regex [\b([^\s\\=]+)\s*(\(\))]
+                (1 entity.name.function.shell)
+                (2 punctuation.definition.arguments.shell)))
+        (end
+            (regex ;|&|$
+                (0 punctuation.definition.function.shell)))
+        (subzones
+            (include $self))))
+
+(collection herestring
+    (zone meta.herestring.shell
+        (match
+            (regex [(<<<)((')[^']*('))]
+                (3 punctuation.definition.string.begin.shell)
+                (4 punctuation.definition.string.end.shell)
+                (1 keyword.operator.herestring.shell)
+                (2 string.quoted.single.herestring.shell))))
+    (zone meta.herestring.shell
+        (match
+            (regex [(<<<)((")(\\("|\\)|[^"])*("))]
+                (3 punctuation.definition.string.begin.shell)
+                (1 keyword.operator.herestring.shell)
+                (6 punctuation.definition.string.end.shell)
+                (2 string.quoted.double.herestring.shell))))
+    (zone meta.herestring.shell
+        (match
+            (regex [(<<<)(([^\s\\]|\\.)+)]
+                (1 keyword.operator.herestring.shell)
+                (2 string.unquoted.herestring.shell)))))
+
+(collection pathname
+    (zone keyword.operator.tilde.shell
+        (match
+            (regex [(?<=\s|:|=|^)~])))
+    (zone keyword.operator.glob.shell
+        (match
+            (regex \*|\?)))
+    (zone meta.structure.extglob.shell
+        (start
+            (regex [([?*+@!])(\()]
+                (1 keyword.operator.extglob.shell)
+                (2 punctuation.definition.extglob.shell)))
+        (end
+            (regex [(\))]
+                (1 punctuation.definition.extglob.shell)))
+        (subzones
+            (include $self))))
+
+(collection pipeline
+    (zone keyword.other.shell
+        (match
+            (list time)
+            (boundary.both)))
+    (zone keyword.operator.pipe.shell
+        (match
+            (regex [[|!]]))))
+
+(collection compound-command
+    (zone meta.scope.logical-expression.shell
+        (start
+            (regex `(\[{2})`
+                (1 punctuation.definition.logical-expression.shell)))
+        (end
+            (regex `(\]{2})`
+                (1 punctuation.definition.logical-expression.shell)))
+        (subzones
+            (include @logical-expression)
+            (include $self)))
+    (zone string.other.math.shell
+        (start
+            (regex [(\({2})]
+                (0 punctuation.definition.string.begin.shell)))
+        (end
+            (regex [(\){2})]
+                (0 punctuation.definition.string.end.shell)))
+        (subzones
+            (include @math)))
+    (zone meta.scope.subshell.shell
+        (start
+            (regex [(\()]
+                (1 punctuation.definition.subshell.shell)))
+        (end
+            (regex [(\))]
+                (1 punctuation.definition.subshell.shell)))
+        (subzones
+            (include $self)))
+    (zone meta.scope.group.shell
+        (start
+            (regex [(?<=\s|^)(\{)(?=\s|$)]
+                (1 punctuation.definition.group.shell)))
+        (end
+            (regex [(?<=^|;)\s*(\})]
+                (1 punctuation.definition.group.shell)))
+        (subzones
+            (include $self))))
+
+(collection string
+    (zone constant.character.escape.shell
+        (match
+            (regex \\.)))
+    (zone string.quoted.single.shell
+        (start
+            (regex '
+                (0 punctuation.definition.string.begin.shell)))
+        (end
+            (regex '
+                (0 punctuation.definition.string.end.shell))))
+    (zone string.quoted.double.shell
+        (start
+            (regex \$?"
+                (0 punctuation.definition.string.begin.shell)))
+        (end
+            (regex "
+                (0 punctuation.definition.string.end.shell)))
+        (subzones
+            (zone constant.character.escape.shell
+                (match
+                    (regex [\\[\$`"\\\n]])))
+            (include @variable)
+            (include @interpolation)))
+    (zone string.quoted.single.dollar.shell
+        (start
+            (regex \$'
+                (0 punctuation.definition.string.begin.shell)))
+        (end
+            (regex '
+                (0 punctuation.definition.string.end.shell)))
+        (subzones
+            (zone constant.character.escape.ansi-c.shell
+                (match
+                    (regex [\\(a|b|e|f|n|r|t|v|\\|')])))
+            (zone constant.character.escape.octal.shell
+                (match
+                    (regex [\\[0-9]{3}])))
+            (zone constant.character.escape.hex.shell
+                (match
+                    (regex [\\x[0-9a-fA-F]{2}])))
+            (zone constant.character.escape.control-char.shell
+                (match
+                    (regex \\c.))))))
+
+(collection heredoc
+    (zone string.unquoted.heredoc.no-indent.ruby.shell
+        (start
+            (regex [(<<)-("|'|)(RUBY)\2]
+                (3 keyword.control.heredoc-token.shell)
+                (1 keyword.operator.heredoc.shell)
+                (0 punctuation.definition.string.shell)))
+        (end
+            (regex [^\t*(RUBY)$]
+                (1 keyword.control.heredoc-token.shell)
+                (0 punctuation.definition.string.shell)))
+        (subzones
+            (include source.ruby)))
+    (zone string.unquoted.heredoc.ruby.shell
+        (start
+            (regex [(<<)("|'|)(RUBY)\2]
+                (3 keyword.control.heredoc-token.shell)
+                (1 keyword.operator.heredoc.shell)
+                (0 punctuation.definition.string.shell)))
+        (end
+            (regex [^(RUBY)$]
+                (1 keyword.control.heredoc-token.shell)
+                (0 punctuation.definition.string.shell)))
+        (subzones
+            (include source.ruby)))
+    (zone string.unquoted.heredoc.no-indent.python.shell
+        (start
+            (regex [(<<)-("|'|)(PYTHON)\2]
+                (3 keyword.control.heredoc-token.shell)
+                (1 keyword.operator.heredoc.shell)
+                (0 punctuation.definition.string.shell)))
+        (end
+            (regex [^\t*(PYTHON)$]
+                (1 keyword.control.heredoc-token.shell)
+                (0 punctuation.definition.string.shell)))
+        (subzones
+            (include source.python)))
+    (zone string.unquoted.heredoc.python.shell
+        (start
+            (regex [(<<)("|'|)(PYTHON)\2]
+                (3 keyword.control.heredoc-token.shell)
+                (1 keyword.operator.heredoc.shell)
+                (0 punctuation.definition.string.shell)))
+        (end
+            (regex [^(PYTHON)$]
+                (1 keyword.control.heredoc-token.shell)
+                (0 punctuation.definition.string.shell)))
+        (subzones
+            (include source.python)))
+    (zone string.unquoted.heredoc.no-indent.applescript.shell
+        (start
+            (regex [(<<)-("|'|)(APPLESCRIPT)\2]
+                (3 keyword.control.heredoc-token.shell)
+                (1 keyword.operator.heredoc.shell)
+                (0 punctuation.definition.string.shell)))
+        (end
+            (regex [^\t*(APPLESCRIPT)$]
+                (1 keyword.control.heredoc-token.shell)
+                (0 punctuation.definition.string.shell)))
+        (subzones
+            (include source.applescript)))
+    (zone string.unquoted.heredoc.applescript.shell
+        (start
+            (regex [(<<)("|'|)(APPLESCRIPT)\2]
+                (3 keyword.control.heredoc-token.shell)
+                (1 keyword.operator.heredoc.shell)
+                (0 punctuation.definition.string.shell)))
+        (end
+            (regex [^(APPLESCRIPT)$]
+                (1 keyword.control.heredoc-token.shell)
+                (0 punctuation.definition.string.shell)))
+        (subzones
+            (include source.applescript)))
+    (zone string.unquoted.heredoc.no-indent.html.shell
+        (start
+            (regex [(<<)-("|'|)(HTML)\2]
+                (3 keyword.control.heredoc-token.shell)
+                (1 keyword.operator.heredoc.shell)
+                (0 punctuation.definition.string.shell)))
+        (end
+            (regex [^\t*(HTML)$]
+                (1 keyword.control.heredoc-token.shell)
+                (0 punctuation.definition.string.shell)))
+        (subzones
+            (include text.html.basic)))
+    (zone string.unquoted.heredoc.html.shell
+        (start
+            (regex [(<<)("|'|)(HTML)\2]
+                (3 keyword.control.heredoc-token.shell)
+                (1 keyword.operator.heredoc.shell)
+                (0 punctuation.definition.string.shell)))
+        (end
+            (regex [^(HTML)$]
+                (1 keyword.control.heredoc-token.shell)
+                (0 punctuation.definition.string.shell)))
+        (subzones
+            (include text.html.basic)))
+    (zone string.unquoted.heredoc.no-indent.markdown.shell
+        (start
+            (regex [(<<)-("|'|)(MARKDOWN)\2]
+                (3 keyword.control.heredoc-token.shell)
+                (1 keyword.operator.heredoc.shell)
+                (0 punctuation.definition.string.shell)))
+        (end
+            (regex [^\t*(MARKDOWN)$]
+                (1 keyword.control.heredoc-token.shell)
+                (0 punctuation.definition.string.shell)))
+        (subzones
+            (include text.html.markdown)))
+    (zone string.unquoted.heredoc.markdown.shell
+        (start
+            (regex [(<<)("|'|)(MARKDOWN)\2]
+                (3 keyword.control.heredoc-token.shell)
+                (1 keyword.operator.heredoc.shell)
+                (0 punctuation.definition.string.shell)))
+        (end
+            (regex [^(MARKDOWN)$]
+                (1 keyword.control.heredoc-token.shell)
+                (0 punctuation.definition.string.shell)))
+        (subzones
+            (include text.html.markdown)))
+    (zone string.unquoted.heredoc.no-indent.textile.shell
+        (start
+            (regex [(<<)-("|'|)(TEXTILE)\2]
+                (3 keyword.control.heredoc-token.shell)
+                (1 keyword.operator.heredoc.shell)
+                (0 punctuation.definition.string.shell)))
+        (end
+            (regex [^\t*(TEXTILE)$]
+                (1 keyword.control.heredoc-token.shell)
+                (0 punctuation.definition.string.shell)))
+        (subzones
+            (include text.html.textile)))
+    (zone string.unquoted.heredoc.textile.shell
+        (start
+            (regex [(<<)("|'|)(TEXTILE)\2]
+                (3 keyword.control.heredoc-token.shell)
+                (1 keyword.operator.heredoc.shell)
+                (0 punctuation.definition.string.shell)))
+        (end
+            (regex [^(TEXTILE)$]
+                (1 keyword.control.heredoc-token.shell)
+                (0 punctuation.definition.string.shell)))
+        (subzones
+            (include text.html.textile)))
+    (zone string.unquoted.heredoc.no-indent.shell
+        (start
+            (regex [(<<)-("|'|)\\?(\w+)\2]
+                (3 keyword.control.heredoc-token.shell)
+                (1 keyword.operator.heredoc.shell)
+                (0 punctuation.definition.string.shell)))
+        (end
+            (regex [^\t*(\3)$]
+                (1 keyword.control.heredoc-token.shell)
+                (0 punctuation.definition.string.shell))))
+    (zone string.unquoted.heredoc.shell
+        (start
+            (regex [(<<)("|'|)\\?(\w+)\2]
+                (3 keyword.control.heredoc-token.shell)
+                (1 keyword.operator.heredoc.shell)
+                (0 punctuation.definition.string.shell)))
+        (end
+            (regex [^(\3)$]
+                (1 keyword.control.heredoc-token.shell)
+                (0 punctuation.definition.string.shell)))))
+
+(collection support
+    (zone support.function.builtin.shell
+        (match
+            (regex [(?<=^|\s)(?::|\.)(?=\s|;|&|$)])))
+    (zone support.function.builtin.shell
+        (match
+            (regex [(?<![-/])\b(?:alias|bg|bind|break|builtin|caller|cd|command|compgen|complete|dirs|disown|echo|enable|eval|exec|exit|false|fc|fg|getopts|hash|help|history|jobs|kill|let|logout|popd|printf|pushd|pwd|read|readonly|set|shift|shopt|source|suspend|test|times|trap|true|type|ulimit|umask|unalias|unset|wait)\b]))))
+
+(collection logical-expression
+    (zone keyword.operator.logical.shell
+        (match
+            (regex [=[=~]?|!=?|<|>|&&|\|\|])))
+    (zone keyword.operator.logical.shell
+        (match
+            (regex [(?<!\S)-(nt|ot|ef|eq|ne|l[te]|g[te]|[a-hknoprstuwxzOGLSN])]))))
+
+(collection comment
+    (zone comment.line.number-sign.shell
+        (match
+            (regex [(?<!\S)(#)(?!\{).*$\n?]
+                (1 punctuation.definition.comment.shell)))))
+
+(collection variable
+    (zone variable.other.special.shell
+        (match
+            (regex [(\$)[-*@#?$!0_]]
+                (1 punctuation.definition.variable.shell))))
+    (zone variable.other.positional.shell
+        (match
+            (regex [(\$)[1-9]]
+                (1 punctuation.definition.variable.shell))))
+    (zone variable.other.normal.shell
+        (match
+            (regex [(\$)[a-zA-Z_][a-zA-Z0-9_]*]
+                (1 punctuation.definition.variable.shell))))
+    (zone variable.other.bracket.shell
+        (start
+            (regex [\$\{]
+                (0 punctuation.definition.variable.shell)))
+        (end
+            (regex [\}]
+                (0 punctuation.definition.variable.shell)))
+        (subzones
+            (zone keyword.operator.expansion.shell
+                (match
+                    (regex [!|:[-=?]?|\*|@|#{1,2}|%{1,2}|/])))
+            (zone
+                (match
+                    (regex `(\[)([^\]]+)(\])`
+                        (3 punctuation.section.array.shell)
+                        (1 punctuation.section.array.shell)))))))
+
+(collection math
+    (include @variable)
+    (zone keyword.operator.arithmetic.shell
+        (match
+            (regex [\+{1,2}|-{1,2}|!|~|\*{1,2}|/|%|<[<=]?|>[>=]?|==|!=|^|\|{1,2}|&{1,2}|\?|\:|,|=|[*/%+\-&^|]=|<<=|>>=])))
+    (zone constant.numeric.hex.shell
+        (match
+            (regex [0[xX]\h+])))
+    (zone constant.numeric.octal.shell
+        (match
+            (regex 0\d+)))
+    (zone constant.numeric.other.shell
+        (match
+            (regex [\d{1,2}#[0-9a-zA-Z@_]+])))
+    (zone constant.numeric.integer.shell
+        (match
+            (regex \d+))))
+
+(collection list
+    (zone keyword.operator.list.shell
+        (match
+            (regex ;|&&|&|\|\|))))
+
+(collection redirection
+    (zone string.interpolated.process-substitution.shell
+        (start
+            (regex [[><]\(]
+                (0 punctuation.definition.string.begin.shell)))
+        (end
+            (regex [\)]
+                (0 punctuation.definition.string.end.shell)))
+        (subzones
+            (include $self)))
+    (zone keyword.operator.redirect.shell
+        (match
+            (regex [&>|\d*>&\d*|\d*(>>|>|<)|\d*<&|\d*<>]))))
+
+(collection interpolation
+    (zone string.other.math.shell
+        (start
+            (regex [\$\({2}]
+                (0 punctuation.definition.string.begin.shell)))
+        (end
+            (regex [\){2}]
+                (0 punctuation.definition.string.end.shell)))
+        (subzones
+            (include @math)))
+    (zone string.interpolated.backtick.shell
+        (start
+            (regex [`]
+                (0 punctuation.definition.string.begin.shell)))
+        (end
+            (regex [`]
+                (0 punctuation.definition.string.end.shell)))
+        (subzones
+            (zone constant.character.escape.shell
+                (match
+                    (regex [\\[`\\$]])))
+            (include $self)))
+    (zone string.interpolated.dollar.shell
+        (start
+            (regex [\$\(]
+                (0 punctuation.definition.string.begin.shell)))
+        (end
+            (regex [\)]
+                (0 punctuation.definition.string.end.shell)))
+        (subzones
+            (include $self))))
+
+(collection loop
+    (zone meta.scope.for-loop.shell
+        (start
+            (regex [\b(for)\s+(?=\({2})]
+                (1 keyword.control.shell)))
+        (end
+            (regex [\b(done)\b]
+                (1 keyword.control.shell)))
+        (subzones
+            (include $self)))
+    (zone meta.scope.for-in-loop.shell
+        (start
+            (regex [\b(for)\s+((?:[^\s\\]|\\.)+)\b]
+                (1 keyword.control.shell)
+                (2 variable.other.loop.shell)))
+        (end
+            (regex [\b(done)\b]
+                (1 keyword.control.shell)))
+        (subzones
+            (include $self)))
+    (zone meta.scope.while-loop.shell
+        (start
+            (regex [\b(while|until)\b]
+                (1 keyword.control.shell)))
+        (end
+            (regex [\b(done)\b]
+                (1 keyword.control.shell)))
+        (subzones
+            (include $self)))
+    (zone meta.scope.select-block.shell
+        (start
+            (regex [\b(select)\s+((?:[^\s\\]|\\.)+)\b]
+                (1 keyword.control.shell)
+                (2 variable.other.loop.shell)))
+        (end
+            (regex [\b(done)\b]
+                (1 keyword.control.shell)))
+        (subzones
+            (include $self)))
+    (zone meta.scope.case-block.shell
+        (start
+            (regex [\b(case)\b]
+                (1 keyword.control.shell)))
+        (end
+            (regex [\b(esac)\b]
+                (1 keyword.control.shell)))
+        (subzones
+            (zone meta.scope.case-body.shell
+                (start
+                    (regex [\b(?:in)\b]
+                        (1 keyword.control.shell)))
+                (end
+                    (regex [(?=\b(?:esac)\b)]))
+                (subzones
+                    (include @comment)
+                    (include @case-clause)
+                    (include $self)))
+            (include $self)))
+    (zone meta.scope.if-block.shell
+        (start
+            (regex [\b(if)\b]
+                (1 keyword.control.shell)))
+        (end
+            (regex [\b(fi)\b]
+                (1 keyword.control.shell)))
+        (subzones
+            (include $self))))
+
+(collection case-clause
+    (zone meta.scope.case-clause.shell
+        (start
+            (regex [(?=\S)]))
+        (end
+            (regex ;;
+                (0 punctuation.terminator.case-clause.shell)))
+        (subzones
+            (zone meta.scope.case-pattern.shell
+                (start
+                    (regex [(\(|(?=\S))]
+                        (0 punctuation.definition.case-pattern.shell)))
+                (end
+                    (regex [\)]
+                        (0 punctuation.definition.case-pattern.shell)))
+                (subzones
+                    (zone punctuation.separator.pipe-sign.shell
+                        (match
+                            (regex \|)))
+                    (include @string)
+                    (include @variable)
+                    (include @interpolation)
+                    (include @pathname)))
+            (zone meta.scope.case-clause-body.shell
+                (start
+                    (regex [(?<=\))]))
+                (end
+                    (regex [(?=;;)]))
+                (subzones
+                    (include $self))))))

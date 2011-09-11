@@ -1,0 +1,10 @@
+(name [if … fi])
+
+(trigger
+    (tab if))
+
+(only-in source.shell)
+
+(snippet [if %{2="[[ %{1="condition"} ]]"}; then
+	%{0="#statements"}
+fi])

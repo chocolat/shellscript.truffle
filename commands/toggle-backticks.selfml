@@ -1,0 +1,21 @@
+(trigger
+    (key [[ctrl][shift]"]))
+
+(name [Toggle Backticks])
+
+(only-in [source.shell string.interpolated])
+
+(input selection scope)
+
+(output replace-selected)
+
+(save nothing)
+
+(script [#!/usr/bin/env ruby
+
+print case str = STDIN.read
+  when /\A`(.*)`\z/m     then '$(' + $1 + ')'
+  when /\A\$\((.*)\)\z/m then '`' + $1 + '`'
+  else str
+end
+])

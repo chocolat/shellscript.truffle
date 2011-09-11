@@ -1,0 +1,10 @@
+(name Tempfile)
+
+(trigger
+    (tab tmpf))
+
+(only-in source.shell)
+
+(snippet [%{1="TMPFILE"}="$(mktemp -t %{2="`echo "${TM_FILENAME%.*}" | sed -E -e 's/[^[:alnum:]]/_/g' -e 's/^$/untitled/'`"})"
+trap "%{3="rm -f '$%{1}'"}" EXIT INT HUP TERM
+%{0}])

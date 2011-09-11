@@ -1,0 +1,10 @@
+(name [for … done])
+
+(trigger
+    (tab for))
+
+(only-in source.shell)
+
+(snippet [for (( i = 0; i < %{1="10"}; i++ )); do
+	%{0="#statements"}
+done])

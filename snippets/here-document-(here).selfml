@@ -1,0 +1,10 @@
+(name [Here Document])
+
+(trigger
+    (tab here))
+
+(only-in source.shell)
+
+(snippet [<<-%{2="'%{1="TOKEN"}'"}
+	%{0}
+%{1/['"`](.+)['"`]/$1/}])

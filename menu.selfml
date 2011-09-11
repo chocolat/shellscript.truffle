@@ -1,0 +1,9 @@
+(menu command.make-current-file-executable
+    ---
+    command.new-function
+    [snippet.here-document-(here)]
+    [snippet.#!-usr-bin-env-(!env)]
+    ---
+    (submenu Tests [snippet.if-...-then-(if)] [snippet.elif-..-(elif)] [snippet.case-..-esac-(case)])
+    (submenu Loops [snippet.for-...-done-(for)] [snippet.for-…-in-…-done-(forin)] [snippet.while-…-(done)] [snippet.until-…-(done)])
+    (submenu Idioms snippet.tempfile snippet.tempdir))

@@ -1,0 +1,16 @@
+(trigger
+    (key [[ctrl][shift][cmd]X]))
+
+(name [Make Script Executable])
+
+(input nothing)
+
+(output tooltip)
+
+(save file)
+
+(script [#!/bin/bash
+if chmod +x "${TM_FILEPATH}" && [[ -x "${TM_FILEPATH}" ]]
+   then echo "${TM_FILEPATH} is now executable"
+   else echo "Failed making ${TM_FILEPATH} executable"
+fi])

@@ -1,0 +1,10 @@
+(name [while … done])
+
+(trigger
+    (tab while))
+
+(only-in source.shell)
+
+(snippet [while %{2="[[ %{1="condition"} ]]"}; do
+	%{0="#statements"}
+done])

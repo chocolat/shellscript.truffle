@@ -1,0 +1,25 @@
+(trigger
+    (key [[shift][enter]])
+    (tab fun))
+
+(name [New Function])
+
+(only-in source.shell)
+
+(input selection word)
+
+(output snippet)
+
+(save nothing)
+
+(script [#!/bin/bash
+NAME="$(cat)"
+if [[ -z "$NAME" ]]; then
+	NAME='${1:function_name}'
+fi
+
+cat <<SNIPPET
+function $NAME () {
+	\${0:#statements}
+}
+SNIPPET])
