@@ -186,7 +186,7 @@
                 (1 keyword.operator.heredoc.shell)
                 (0 punctuation.definition.string.shell)))
         (end
-            (regex [^\t*(RUBY)$]
+            (regex [^\t*(RUBY)\b]
                 (1 keyword.control.heredoc-token.shell)
                 (0 punctuation.definition.string.shell)))
         (subzones
@@ -198,7 +198,7 @@
                 (1 keyword.operator.heredoc.shell)
                 (0 punctuation.definition.string.shell)))
         (end
-            (regex [^(RUBY)$]
+            (regex [^(RUBY)\b]
                 (1 keyword.control.heredoc-token.shell)
                 (0 punctuation.definition.string.shell)))
         (subzones
@@ -210,7 +210,7 @@
                 (1 keyword.operator.heredoc.shell)
                 (0 punctuation.definition.string.shell)))
         (end
-            (regex [^\t*(PYTHON)$]
+            (regex [^\t*(PYTHON)\b]
                 (1 keyword.control.heredoc-token.shell)
                 (0 punctuation.definition.string.shell)))
         (subzones
@@ -222,7 +222,7 @@
                 (1 keyword.operator.heredoc.shell)
                 (0 punctuation.definition.string.shell)))
         (end
-            (regex [^(PYTHON)$]
+            (regex [^(PYTHON)\b]
                 (1 keyword.control.heredoc-token.shell)
                 (0 punctuation.definition.string.shell)))
         (subzones
@@ -234,7 +234,7 @@
                 (1 keyword.operator.heredoc.shell)
                 (0 punctuation.definition.string.shell)))
         (end
-            (regex [^\t*(APPLESCRIPT)$]
+            (regex [^\t*(APPLESCRIPT)\b]
                 (1 keyword.control.heredoc-token.shell)
                 (0 punctuation.definition.string.shell)))
         (subzones
@@ -246,7 +246,7 @@
                 (1 keyword.operator.heredoc.shell)
                 (0 punctuation.definition.string.shell)))
         (end
-            (regex [^(APPLESCRIPT)$]
+            (regex [^(APPLESCRIPT)\b]
                 (1 keyword.control.heredoc-token.shell)
                 (0 punctuation.definition.string.shell)))
         (subzones
@@ -258,7 +258,7 @@
                 (1 keyword.operator.heredoc.shell)
                 (0 punctuation.definition.string.shell)))
         (end
-            (regex [^\t*(HTML)$]
+            (regex [^\t*(HTML)\b]
                 (1 keyword.control.heredoc-token.shell)
                 (0 punctuation.definition.string.shell)))
         (subzones
@@ -270,7 +270,7 @@
                 (1 keyword.operator.heredoc.shell)
                 (0 punctuation.definition.string.shell)))
         (end
-            (regex [^(HTML)$]
+            (regex [^(HTML)\b]
                 (1 keyword.control.heredoc-token.shell)
                 (0 punctuation.definition.string.shell)))
         (subzones
@@ -282,7 +282,7 @@
                 (1 keyword.operator.heredoc.shell)
                 (0 punctuation.definition.string.shell)))
         (end
-            (regex [^\t*(MARKDOWN)$]
+            (regex [^\t*(MARKDOWN)\b]
                 (1 keyword.control.heredoc-token.shell)
                 (0 punctuation.definition.string.shell)))
         (subzones
@@ -294,7 +294,7 @@
                 (1 keyword.operator.heredoc.shell)
                 (0 punctuation.definition.string.shell)))
         (end
-            (regex [^(MARKDOWN)$]
+            (regex [^(MARKDOWN)\b]
                 (1 keyword.control.heredoc-token.shell)
                 (0 punctuation.definition.string.shell)))
         (subzones
@@ -306,7 +306,7 @@
                 (1 keyword.operator.heredoc.shell)
                 (0 punctuation.definition.string.shell)))
         (end
-            (regex [^\t*(TEXTILE)$]
+            (regex [^\t*(TEXTILE)\b]
                 (1 keyword.control.heredoc-token.shell)
                 (0 punctuation.definition.string.shell)))
         (subzones
@@ -318,7 +318,7 @@
                 (1 keyword.operator.heredoc.shell)
                 (0 punctuation.definition.string.shell)))
         (end
-            (regex [^(TEXTILE)$]
+            (regex [^(TEXTILE)\b]
                 (1 keyword.control.heredoc-token.shell)
                 (0 punctuation.definition.string.shell)))
         (subzones
@@ -330,7 +330,7 @@
                 (1 keyword.operator.heredoc.shell)
                 (0 punctuation.definition.string.shell)))
         (end
-            (regex [^\t*(\3)$]
+            (regex [^\t*(\3)\b]
                 (1 keyword.control.heredoc-token.shell)
                 (0 punctuation.definition.string.shell))))
     (zone string.unquoted.heredoc.shell
@@ -340,7 +340,7 @@
                 (1 keyword.operator.heredoc.shell)
                 (0 punctuation.definition.string.shell)))
         (end
-            (regex [^(\3)$]
+            (regex [^(\3)\b]
                 (1 keyword.control.heredoc-token.shell)
                 (0 punctuation.definition.string.shell)))))
 
